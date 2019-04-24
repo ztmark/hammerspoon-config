@@ -1,159 +1,157 @@
-function resize_win(direction)
+-- Window management
+
+-- Defines for window maximize toggler
+local frameCache = {}
+local logger = hs.logger.new("windows")
+
+-- Resize current window
+
+function winresize(how)
     local win = hs.window.focusedWindow()
-    if win then
-        local f = win:frame()
-        local screen = win:screen()
-        local localf = screen:absoluteToLocal(f)
-        local max = screen:fullFrame()
-        local stepw = max.w/30
-        local steph = max.h/30
-        if direction == "right" then
-            localf.w = localf.w+stepw
-            local absolutef = screen:localToAbsolute(localf)
-            win:setFrame(absolutef)
-        end
-        if direction == "left" then
-            localf.w = localf.w-stepw
-            local absolutef = screen:localToAbsolute(localf)
-            win:setFrame(absolutef)
-        end
-        if direction == "up" then
-            localf.h = localf.h-steph
-            local absolutef = screen:localToAbsolute(localf)
-            win:setFrame(absolutef)
-        end
-        if direction == "down" then
-            localf.h = localf.h+steph
-            local absolutef = screen:localToAbsolute(localf)
-            win:setFrame(absolutef)
-        end
-        if direction == "halfright" then
-            localf.x = max.w/2 localf.y = 0 localf.w = max.w/2 localf.h = max.h
-            local absolutef = screen:localToAbsolute(localf)
-            win:setFrame(absolutef)
-        end
-        if direction == "halfleft" then
-            localf.x = 0 localf.y = 0 localf.w = max.w/2 localf.h = max.h
-            local absolutef = screen:localToAbsolute(localf)
-            win:setFrame(absolutef)
-        end
-        if direction == "halfup" then
-            localf.x = 0 localf.y = 0 localf.w = max.w localf.h = max.h/2
-            local absolutef = screen:localToAbsolute(localf)
-            win:setFrame(absolutef)
-        end
-        if direction == "halfdown" then
-            localf.x = 0 localf.y = max.h/2 localf.w = max.w localf.h = max.h/2
-            local absolutef = screen:localToAbsolute(localf)
-            win:setFrame(absolutef)
-        end
-        if direction == "cornerNE" then
-            localf.x = max.w/2 localf.y = 0 localf.w = max.w/2 localf.h = max.h/2
-            local absolutef = screen:localToAbsolute(localf)
-            win:setFrame(absolutef)
-        end
-        if direction == "cornerSE" then
-            localf.x = max.w/2 localf.y = max.h/2 localf.w = max.w/2 localf.h = max.h/2
-            local absolutef = screen:localToAbsolute(localf)
-            win:setFrame(absolutef)
-        end
-        if direction == "cornerNW" then
-            localf.x = 0 localf.y = 0 localf.w = max.w/2 localf.h = max.h/2
-            local absolutef = screen:localToAbsolute(localf)
-            win:setFrame(absolutef)
-        end
-        if direction == "cornerSW" then
-            localf.x = 0 localf.y = max.h/2 localf.w = max.w/2 localf.h = max.h/2
-            local absolutef = screen:localToAbsolute(localf)
-            win:setFrame(absolutef)
-        end
-        if direction == "center" then
-            localf.x = (max.w-localf.w)/2 localf.y = (max.h-localf.h)/2
-            local absolutef = screen:localToAbsolute(localf)
-            win:setFrame(absolutef)
-        end
-        if direction == "fcenter" then
-            localf.x = stepw*5 localf.y = steph*5 localf.w = stepw*20 localf.h = steph*20
-            local absolutef = screen:localToAbsolute(localf)
-            win:setFrame(absolutef)
-        end
-        if direction == "fullscreen" then
-            win:toggleFullScreen()
-        end
-        if direction == "maximize" then
-            -- localf.x = 0 localf.y = 0 localf.w = max.w localf.h = max.h
-            -- local absolutef = screen:localToAbsolute(localf)
-            -- win:setFrame(absolutef)
-            toggle_window_maximized()
-        end
-        if direction == "shrink" then
-            localf.x = localf.x+stepw localf.y = localf.y+steph localf.w = localf.w-(stepw*2) localf.h = localf.h-(steph*2)
-            local absolutef = screen:localToAbsolute(localf)
-            win:setFrame(absolutef)
-        end
-        if direction == "expand" then
-            localf.x = localf.x-stepw localf.y = localf.y-steph localf.w = localf.w+(stepw*2) localf.h = localf.h+(steph*2)
-            local absolutef = screen:localToAbsolute(localf)
-            win:setFrame(absolutef)
-        end
-        if direction == "mright" then
-            localf.x = localf.x+stepw
-            local absolutef = screen:localToAbsolute(localf)
-            win:setFrame(absolutef)
-        end
-        if direction == "mleft" then
-            localf.x = localf.x-stepw
-            local absolutef = screen:localToAbsolute(localf)
-            win:setFrame(absolutef)
-        end
-        if direction == "mup" then
-            localf.y = localf.y-steph
-            local absolutef = screen:localToAbsolute(localf)
-            win:setFrame(absolutef)
-        end
-        if direction == "mdown" then
-            localf.y = localf.y+steph
-            local absolutef = screen:localToAbsolute(localf)
-            win:setFrame(absolutef)
-        end
-        if direction == "ccursor" then
-            localf.x = localf.x+localf.w/2 localf.y = localf.y+localf.h/2
-            hs.mouse.setRelativePosition({x=localf.x,y=localf.y},screen)
-        end
-    else
-        hs.alert.show("No focused window!")
+    local app = win:application():name()
+    local windowLayout
+    local newrect
+
+    if how == "left" then
+        newrect = hs.layout.left50
+    elseif how == "right" then
+        newrect = hs.layout.right50
+    elseif how == "up" then
+        newrect = {0,0,1,0.5}
+    elseif how == "down" then
+        newrect = {0,0.5,1,0.5}
+    elseif how == "max" then
+        newrect = hs.layout.maximized
+    elseif how == "left_up" then
+        newrect = {0, 0, 0.5, 0.5}
+    elseif how == "left_down" then
+        newrect = {0, 0.5, 0.5, 1}
+    elseif how == "right_up" then
+        newrect = {0.5, 0, 1, 0.5}
+    elseif how == "right_down" then
+        newrect = {0.5, 0.5, 1, 1}
+    elseif how == "left_third" or how == "hthird-0" then
+        newrect = {0,0,1/3,1}
+    elseif how == "middle_third_h" or how == "hthird-1" then
+        newrect = {1/3,0,1/3,1}
+    elseif how == "right_third" or how == "hthird-2" then
+        newrect = {2/3,0,1/3,1}
+    elseif how == "top_third" or how == "vthird-0" then
+        newrect = {0,0,1,1/3}
+    elseif how == "middle_third_v" or how == "vthird-1" then
+        newrect = {0,1/3,1,1/3}
+    elseif how == "bottom_third" or how == "vthird-2" then
+        newrect = {0,2/3,1,1/3}
     end
+
+    win:move(newrect)
+end
+
+function winmovescreen(how)
+   local win = hs.window.focusedWindow()
+   if how == "left" then
+      win:moveOneScreenWest()
+   elseif how == "right" then
+      win:moveOneScreenEast()
+   end
 end
 
 -- Toggle a window between its normal size, and being maximized
-local frameCache = {}
 function toggle_window_maximized()
-    local win = hs.window.focusedWindow()
-    if frameCache[win:id()] then
-       win:setFrame(frameCache[win:id()])
-       frameCache[win:id()] = nil
-    else
-       frameCache[win:id()] = win:frame()
-       win:maximize()
-    end
- end
+   local win = hs.window.focusedWindow()
+   if frameCache[win:id()] then
+      win:setFrame(frameCache[win:id()])
+      frameCache[win:id()] = nil
+   else
+      frameCache[win:id()] = win:frame()
+      win:maximize()
+   end
+end
 
-mod0 =   {"cmd", "ctrl", "shift"}
+-- Move between thirds of the screen
+function get_horizontal_third(win)
+   local frame=win:frame()
+   local screenframe=win:screen():frame()
+   local relframe=hs.geometry(frame.x-screenframe.x, frame.y-screenframe.y, frame.w, frame.h)
+   local third = math.floor(3.01*relframe.x/screenframe.w)
+   logger.df("Screen frame: %s", screenframe)
+   logger.df("Window frame: %s, relframe %s is in horizontal third #%d", frame, relframe, third)
+   return third
+end
 
-resize_win_bindings = {
-    { key = {mod0, "left"},  dir = "halfleft", tip = "Lefthalf of Screen" },
-    { key = {mod0, "right"}, dir = "halfright", tip = "Righthalf of Screen" },
-    { key = {mod0, "up"},    dir = "halfup", tip = "Uphalf of Screen" },
-    { key = {mod0, "down"},  dir = "halfdown", tip = "Downhalf of Screen" },
-    { key = {mod0, "O"},     dir = "cornerNE", tip = "NorthEast Corner" },
-    { key = {mod0, "Y"},     dir = "cornerNW", tip = "NorthWest Corner" },
-    { key = {mod0, "U"},     dir = "cornerSW", tip = "SouthWest Corner" },
-    { key = {mod0, "I"},     dir = "cornerSE", tip = "SouthEast Corner" },
-    { key = {mod0, "C"},     dir = "center", tip = "Center Window" },
-    { key = {mod0, "M"},     dir = "maximize", tip = "Maximize Window" },
-    { key = {mod0, "F"},     dir = "fullscreen", tip = "Fullscreen Window" },
-}
+function get_vertical_third(win)
+   local frame=win:frame()
+   local screenframe=win:screen():frame()
+   local relframe=hs.geometry(frame.x-screenframe.x, frame.y-screenframe.y, frame.w, frame.h)
+   local third = math.floor(3.01*relframe.y/screenframe.h)
+   logger.df("Screen frame: %s", screenframe)
+   logger.df("Window frame: %s, relframe %s is in vertical third #%d", frame, relframe, third)
+   return third
+end
 
-hs.fnutils.each(resize_win_bindings, function(item)
-    hs.hotkey.bind(item.key[1], item.key[2], item.tip, function() resize_win(item.dir) end)
-end)
+function left_third()
+   local win = hs.window.focusedWindow()
+   local third = get_horizontal_third(win)
+   if third == 0 then
+      winresize("hthird-0")
+   else
+      winresize("hthird-" .. (third-1))
+   end
+end
+
+function right_third()
+   local win = hs.window.focusedWindow()
+   local third = get_horizontal_third(win)
+   if third == 2 then
+      winresize("hthird-2")
+   else
+      winresize("hthird-" .. (third+1))
+   end
+end
+
+function up_third()
+   local win = hs.window.focusedWindow()
+   local third = get_vertical_third(win)
+   if third == 0 then
+      winresize("vthird-0")
+   else
+      winresize("vthird-" .. (third-1))
+   end
+end
+
+function down_third()
+   local win = hs.window.focusedWindow()
+   local third = get_vertical_third(win)
+   if third == 2 then
+      winresize("vthird-2")
+   else
+      winresize("vthird-" .. (third+1))
+   end
+end
+
+-------- Key bindings
+
+-- Halves of the screen
+hs.hotkey.bind({"ctrl",        "cmd"}, "Left",  hs.fnutils.partial(winresize, "left"))
+hs.hotkey.bind({"ctrl",        "cmd"}, "Right", hs.fnutils.partial(winresize, "right"))
+hs.hotkey.bind({"ctrl",        "cmd"}, "Up",    hs.fnutils.partial(winresize, "up"))
+hs.hotkey.bind({"ctrl",        "cmd"}, "Down",  hs.fnutils.partial(winresize, "down"))
+
+hs.hotkey.bind({"ctrl",        "cmd"}, "H",  hs.fnutils.partial(winresize, "left_up"))
+hs.hotkey.bind({"ctrl",        "cmd"}, "J",  hs.fnutils.partial(winresize, "left_down"))
+hs.hotkey.bind({"ctrl",        "cmd"}, "K",  hs.fnutils.partial(winresize, "right_up"))
+hs.hotkey.bind({"ctrl",        "cmd"}, "L",  hs.fnutils.partial(winresize, "right_down"))
+
+-- Thirds of the screen
+hs.hotkey.bind({"ctrl", "alt"       }, "Left",  left_third)
+hs.hotkey.bind({"ctrl", "alt"       }, "Right", right_third)
+hs.hotkey.bind({"ctrl", "alt"       }, "Up",    up_third)
+hs.hotkey.bind({"ctrl", "alt"       }, "Down",  down_third)
+
+-- Maximized
+hs.hotkey.bind({"ctrl", "alt", "cmd"}, "M",     hs.fnutils.partial(winresize, "max"))
+hs.hotkey.bind({"ctrl", "alt", "cmd"}, "Up",    hs.fnutils.partial(winresize, "max"))
+
+-- Move between screens
+hs.hotkey.bind({"ctrl", "alt", "cmd"}, "Left",  hs.fnutils.partial(winmovescreen, "left"))
+hs.hotkey.bind({"ctrl", "alt", "cmd"}, "Right", hs.fnutils.partial(winmovescreen, "right"))
