@@ -16,6 +16,7 @@ local app2Ime = {
     {'/Applications/LastPass.app', 'English'},
     {'/Applications/Telegram.app', 'Chinese'},
     {'/Applications/AppCleaner.app', 'English'},
+    {'/Applications/Google Chrome.app', 'English'},
     {'/Applications/Dash.app', 'English'},
     {'/Applications/System Preferences.app', 'English'},
     {'/System/Library/CoreServices/Finder.app', 'English'},
