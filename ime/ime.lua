@@ -19,6 +19,7 @@ local app2Ime = {
     {'/Applications/Google Chrome.app', 'English'},
     {'/Applications/Dash.app', 'English'},
     {'/Applications/System Preferences.app', 'English'},
+    {'/System/Library/CoreServices/Spotlight.app', 'English'},
     {'/System/Library/CoreServices/Finder.app', 'English'},
 }
 
