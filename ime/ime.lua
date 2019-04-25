@@ -15,6 +15,7 @@ local app2Ime = {
     {'/Applications/DataGrip.app', 'English'},
     {'/Applications/LastPass.app', 'English'},
     {'/Applications/Telegram.app', 'Chinese'},
+    {'/Applications/Typora.app', 'Chinese'},
     {'/Applications/AppCleaner.app', 'English'},
     {'/Applications/Google Chrome.app', 'English'},
     {'/Applications/Dash.app', 'English'},

@@ -25,11 +25,11 @@ function winresize(how)
     elseif how == "left_up" then
         newrect = {0, 0, 0.5, 0.5}
     elseif how == "left_down" then
-        newrect = {0, 0.5, 0.5, 1}
+        newrect = {0, 0.5, 0.5, 0.5}
     elseif how == "right_up" then
-        newrect = {0.5, 0, 1, 0.5}
+        newrect = {0.5, 0, 0.5, 0.5}
     elseif how == "right_down" then
-        newrect = {0.5, 0.5, 1, 1}
+        newrect = {0.5, 0.5, 0.5, 0.5}
     elseif how == "left_third" or how == "hthird-0" then
         newrect = {0,0,1/3,1}
     elseif how == "middle_third_h" or how == "hthird-1" then
