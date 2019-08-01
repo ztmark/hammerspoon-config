@@ -33,5 +33,7 @@ set_app_input_method('AppCleaner', English)
 set_app_input_method('Dash', English)
 
 set_app_input_method('WeChat', Chinese)
+set_app_input_method('微信', Chinese)
 set_app_input_method('Typora', Chinese)
 set_app_input_method('Telegram', Chinese)
+set_app_input_method('Notebook', Chinese)
